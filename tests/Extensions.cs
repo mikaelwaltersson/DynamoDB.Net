@@ -19,10 +19,10 @@ public static class Extensions
 
         if (value is AttributeValue dynamoDBValue)
         {
-            if (dynamoDBValue.NULL)
+            if (dynamoDBValue.NULL is true)
                 return new { NULL = true };
 
-            if (dynamoDBValue.IsBOOLSet)
+            if (dynamoDBValue.BOOL is not null)
                 return new { dynamoDBValue.BOOL };
 
             if (dynamoDBValue.S is not null)

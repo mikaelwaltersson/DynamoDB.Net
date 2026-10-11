@@ -136,7 +136,7 @@ public class AttributeValueJsonConverterTests
     public void CanSerializeM()
     {
         Assert.Equal("""{"M":{}}""", Serialize(new() { IsMSet = true }));
-        Assert.Equal("""{"M":{"text":{"S":"Hello World"}}}""", Serialize(new() { M = { ["text"] = new() { S = "Hello World" } } }));
+        Assert.Equal("""{"M":{"text":{"S":"Hello World"}}}""", Serialize(new() { M = new() { ["text"] = new() { S = "Hello World" } } }));
     }
 
 

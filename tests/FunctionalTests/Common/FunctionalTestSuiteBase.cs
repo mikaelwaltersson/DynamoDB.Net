@@ -6,7 +6,6 @@ using DynamoDB.Net.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-
 namespace DynamoDB.Net.Tests.FunctionalTests.Common;
 
 public abstract class FunctionalTestSuiteBase : IAsyncLifetime

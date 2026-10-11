@@ -33,7 +33,7 @@ public sealed class DynamoDBSerializer(IOptions<DynamoDBSerializerOptions> optio
         {
             { NULL: true } => typeConverter.ConvertFromNull(objectType),
 
-            { IsBOOLSet: true } => typeConverter.ConvertFromBoolean(value.BOOL, objectType),
+            { IsBOOLSet: true } => typeConverter.ConvertFromBoolean(value.BOOL.GetValueOrDefault(), objectType),
 
             { S: not null } => typeConverter.ConvertFromString(value.S, objectType),
 

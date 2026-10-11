@@ -361,7 +361,7 @@ public class DynamoDBClient : IDynamoDBClient
         itemEvents.OnItemDeserialized(Deserialize<T>(attributes));
 
     PrimaryKey<T> DeserializeKey<T>(Dictionary<string, AttributeValue> attributes) where T : class =>
-        attributes.Count == 0 ? default : Deserialize<PrimaryKey<T>>(attributes);
+        attributes is { Count: > 0 } ? Deserialize<PrimaryKey<T>>(attributes) : default;
 
     async Task<TResponse> Invoke<TRequest, TResponse>(
         Func<TRequest, CancellationToken, Task<TResponse>> operation,

@@ -230,16 +230,16 @@ class DefaultDynamoDBTypeConverter
             {
                 switch ((element, serializedSet))
                 {
-                    case ({ S: not null }, { NS.Count: 0, BS.Count: 0 }):
-                        serializedSet.SS.Add(element.S);
+                    case ({ S: not null }, { NS: null or { Count: 0 }, BS: null or { Count: 0 } }):
+                        (serializedSet.SS ??= []).Add(element.S);
                         break;
 
-                    case ({ N: not null }, { SS.Count: 0, BS.Count: 0 }):
-                        serializedSet.NS.Add(element.N);
+                    case ({ N: not null }, { SS: null or { Count: 0 }, BS: null or { Count: 0 } }):
+                        (serializedSet.NS ??= []).Add(element.N);
                         break;
 
-                    case ({ B: not null }, { SS.Count: 0, NS.Count: 0 }):
-                        serializedSet.BS.Add(element.B);
+                    case ({ B: not null }, { SS: null or { Count: 0 }, NS: null or { Count: 0 } }):
+                        (serializedSet.BS ??= []).Add(element.B);
                         break;
 
                     default:
@@ -272,6 +272,7 @@ class DefaultDynamoDBTypeConverter
             {
                 var partitionKeyInfo = serializer.GetPropertyAttributeInfo(TableDescription.Properties<T>.PartitionKey);
             
+                serializedKeyValue.M = [];
                 serializedKeyValue.M[partitionKeyInfo.AttributeName] = serializer.SerializeDynamoDBValue(keyValue.PartitionKey, TableDescription.PropertyTypes<T>.PartitionKey);
 
                 if (TableDescription.Properties<T>.SortKey != null)

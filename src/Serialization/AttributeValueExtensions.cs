@@ -13,14 +13,14 @@ public static class AttributeValueExtensions
     public static bool IsEmpty(this AttributeValue value) =>
         value is
         {
-            NULL: false,
+            NULL: null or false,
             IsBOOLSet: false,
             S: null,
             N: null,
             B: null,
-            SS.Count: 0,
-            NS.Count: 0,
-            BS.Count: 0,
+            SS: null or { Count: 0 },
+            NS: null or { Count: 0 },
+            BS: null or { Count: 0 },
             IsLSet: false,
             IsMSet: false
         };
@@ -29,7 +29,7 @@ public static class AttributeValueExtensions
     /// Returns true when the AttributeValue is explicitly NULL or otherwise empty.
     /// </summary>
     public static bool IsEmptyOrNull(this AttributeValue value) =>
-        value.NULL || value.IsEmpty();
+        value.NULL is true || value.IsEmpty();
 
     internal static AttributeValue EnsureIsMSet(this AttributeValue value) =>
         !value.IsMSet

@@ -345,7 +345,7 @@ public class TableDescription
                 ProvisionedThroughput = provisionedThroughput ?? GetDefaultProvisionedThrougput(),
                 StreamSpecification = streamSpecification ?? GetDefaultStreamSpecification(),
                 SSESpecification = new SSESpecification { Enabled = true },
-                AttributeDefinitions = [.. (
+                AttributeDefinitions = EmptyListAsNull(
                     from property in
                         new[] { table.PartitionKeyProperty, table.SortKeyProperty }
                         .Concat(table.LocalSecondaryIndexSortKeyProperties)
@@ -360,9 +360,9 @@ public class TableDescription
                         AttributeType =
                             mapToKeyAttributeType?.Invoke(property.GetPropertyType()) ??
                             MapToScalarAttributeType(property.GetPropertyType())
-                    })],
+                    }),
 
-                LocalSecondaryIndexes = [.. (
+                LocalSecondaryIndexes = EmptyListAsNull(
                     from ordinal in GetIndexOrdinals(IndexType.LocalSecondaryIndex)
                     let sortKey = table.LocalSecondaryIndexSortKeyProperties[ordinal]
                     where sortKey != null
@@ -371,9 +371,9 @@ public class TableDescription
                         IndexName = table.GetLocalSecondaryIndexName(ordinal),
                         KeySchema = GetKeySchema(serializer, table.PartitionKeyProperty, sortKey),
                         Projection = projection ?? GetDefaultProjection()
-                    })],
+                    }),
 
-                GlobalSecondaryIndexes = [.. (
+                GlobalSecondaryIndexes = EmptyListAsNull(
                     from ordinal in GetIndexOrdinals(IndexType.GlobalSecondaryIndex)
                     let partitionKey = table.GlobalSecondaryIndexPartitionKeyProperties[ordinal]
                     let sortKey = table.GlobalSecondaryIndexSortKeyProperties[ordinal]
@@ -384,7 +384,7 @@ public class TableDescription
                         KeySchema = GetKeySchema(serializer, partitionKey, sortKey),
                         Projection = projection ?? GetDefaultProjection(),
                         ProvisionedThroughput = provisionedThroughput ?? GetDefaultProvisionedThrougput()
-                    })],
+                    }),
             };
 
         public static UpdateTableRequest UpdateTableProvisionedThroughput(
@@ -400,7 +400,7 @@ public class TableDescription
                     ReadCapacityUnits = readCapacityUnits ?? DefaultReadCapacityUnits,
                     WriteCapacityUnits = writeCapacityUnits ?? DefaultWriteCapacityUnits,
                 },
-                GlobalSecondaryIndexUpdates = [.. (
+                GlobalSecondaryIndexUpdates = EmptyListAsNull(
                     from ordinal in GetIndexOrdinals(IndexType.GlobalSecondaryIndex)
                     let partitionKey = table.GlobalSecondaryIndexPartitionKeyProperties[ordinal]
                     let sortKey = table.GlobalSecondaryIndexSortKeyProperties[ordinal]
@@ -416,7 +416,7 @@ public class TableDescription
                                 WriteCapacityUnits = writeCapacityUnits ?? DefaultWriteCapacityUnits,
                             }
                         }
-                    })],
+                    }),
             };
 
 
@@ -490,6 +490,12 @@ public class TableDescription
                         ? ScalarAttributeType.B
                         : ScalarAttributeType.S
             };
+        }
+
+        static List<T>? EmptyListAsNull<T>(IEnumerable<T> values)
+        {
+            var list = values.ToList();
+            return list.Count == 0 ? null : list;
         }
     }
 }

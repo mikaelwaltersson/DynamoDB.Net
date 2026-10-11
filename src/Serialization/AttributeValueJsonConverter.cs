@@ -122,16 +122,16 @@ public class AttributeValueJsonConverter : JsonConverter<AttributeValue>
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, AttributeValue value, JsonSerializerOptions options)
     {
-        if (value.NULL)
+        if (value.NULL is true)
         {
             writer.WriteStartObject();
             writer.WriteBoolean("NULL", true);
             writer.WriteEndObject();
         }
-        else if (value.IsBOOLSet)
+        else if (value.IsBOOLSet is true)
         {
             writer.WriteStartObject();
-            writer.WriteBoolean("BOOL", value.BOOL);
+            writer.WriteBoolean("BOOL", value.BOOL.GetValueOrDefault());
             writer.WriteEndObject();
         }
         else if (value.S is not null)
@@ -152,7 +152,7 @@ public class AttributeValueJsonConverter : JsonConverter<AttributeValue>
             writer.WriteBase64String("B", value.B.ToArray());
             writer.WriteEndObject();
         }
-        else if (value.SS.Count > 0)
+        else if (value.SS is { Count: > 0 })
         {
             writer.WriteStartObject();
             writer.WritePropertyName("SS");
@@ -162,7 +162,7 @@ public class AttributeValueJsonConverter : JsonConverter<AttributeValue>
             writer.WriteEndArray();
             writer.WriteEndObject();
         }
-        else if (value.NS.Count > 0)
+        else if (value.NS is { Count: > 0 })
         {
             writer.WriteStartObject();
             writer.WritePropertyName("NS");
@@ -172,7 +172,7 @@ public class AttributeValueJsonConverter : JsonConverter<AttributeValue>
             writer.WriteEndArray();
             writer.WriteEndObject();
         }
-        else if (value.BS.Count > 0)
+        else if (value.BS is { Count: > 0 })
         {
             writer.WriteStartObject();
             writer.WritePropertyName("BS");
