@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>DynamoDB.Net</AssemblyName>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <RepositoryUrl>https://github.com/mikaelwaltersson/dynamodb.net.git</RepositoryUrl> 
     <RepositoryType>git</RepositoryType>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>

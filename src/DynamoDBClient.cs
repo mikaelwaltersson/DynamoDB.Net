@@ -80,7 +80,7 @@ public class DynamoDBClient : IDynamoDBClient
             new GetItemRequest
             {
                 TableName = TableDescription.GetTableName<T>(Options),
-                Key = Serialize(key),
+                Key = SerializeKey(key),
                 ConsistentRead = consistendRead ?? DefaultConsistentRead,
                 ReturnConsumedCapacity = LogConsumedCapacity
             };
@@ -135,7 +135,7 @@ public class DynamoDBClient : IDynamoDBClient
             new UpdateItemRequest
             {
                 TableName = TableDescription.GetTableName<T>(Options),
-                Key = Serialize(key),
+                Key = SerializeKey(key),
                 UpdateExpression = operation.UpdateExpression,
                 ConditionExpression = operation.ConditionExpression,
                 ExpressionAttributeNames = operation.ExpressionAttributeNames,
@@ -162,7 +162,7 @@ public class DynamoDBClient : IDynamoDBClient
             new DeleteItemRequest
             {
                 TableName = TableDescription.GetTableName<T>(Options),
-                Key = Serialize(key),
+                Key = SerializeKey(key),
                 ConditionExpression = operation.ConditionExpression,
                 ExpressionAttributeNames = operation.ExpressionAttributeNames,
                 ExpressionAttributeValues = operation.ExpressionAttributeValues,
@@ -188,7 +188,7 @@ public class DynamoDBClient : IDynamoDBClient
             new ScanRequest
             {
                 TableName = TableDescription.GetTableName<T>(Options),
-                ExclusiveStartKey = Serialize(exclusiveStartKey),
+                ExclusiveStartKey = SerializeKey(exclusiveStartKey),
                 IndexName = indexProperties.GetIndexName<T>(),
                 FilterExpression = filter?.Translate(expressionTranslationContext),
                 ExpressionAttributeNames = expressionTranslationContext.AttributeNames,
@@ -227,7 +227,7 @@ public class DynamoDBClient : IDynamoDBClient
             new QueryRequest
             {
                 TableName = TableDescription.GetTableName<T>(Options),
-                ExclusiveStartKey = Serialize(exclusiveStartKey),
+                ExclusiveStartKey = SerializeKey(exclusiveStartKey),
                 KeyConditionExpression = keyCondition.Translate(expressionTranslationContext),
                 IndexName = indexProperties != default
                     ? indexProperties.GetIndexName<T>()
@@ -266,7 +266,7 @@ public class DynamoDBClient : IDynamoDBClient
 
         var version = TableDescription.PropertyAccessors<T>.GetVersion?.Invoke(item);
 
-        var serializedItem = itemEvents.OnItemSerialized<T>(Serialize(item), expressionTranslationContext);
+        var serializedItem = itemEvents.OnItemSerialized<T>(SerializeItem(item), expressionTranslationContext);
         var translatedItemCondition = itemEvents.OnItemConditionTranslated<T>(condition?.Translate(expressionTranslationContext), version, expressionTranslationContext);
 
         return
@@ -299,7 +299,7 @@ public class DynamoDBClient : IDynamoDBClient
             new Update
             {
                 TableName = TableDescription.GetTableName<T>(Options),
-                Key = Serialize(key),
+                Key = SerializeKey(key),
                 UpdateExpression = translatedItemUpdate,
                 ConditionExpression = translatedItemCondition,
                 ExpressionAttributeNames = expressionTranslationContext.AttributeNames,
@@ -322,7 +322,7 @@ public class DynamoDBClient : IDynamoDBClient
             new Delete
             {
                 TableName = TableDescription.GetTableName<T>(Options),
-                Key = Serialize(key),
+                Key = SerializeKey(key),
                 ConditionExpression = translatedItemCondition,
                 ExpressionAttributeNames = expressionTranslationContext.AttributeNames,
                 ExpressionAttributeValues = expressionTranslationContext.AttributeValues
@@ -344,15 +344,18 @@ public class DynamoDBClient : IDynamoDBClient
             new ConditionCheck
             {
                 TableName = TableDescription.GetTableName<T>(Options),
-                Key = Serialize(key),
+                Key = SerializeKey(key),
                 ConditionExpression = translatedItemCondition,
                 ExpressionAttributeNames = expressionTranslationContext.AttributeNames,
                 ExpressionAttributeValues = expressionTranslationContext.AttributeValues
             };
     }
 
-    Dictionary<string, AttributeValue> Serialize<T>(T itemOrKeys) =>
-        serializer.SerializeDynamoDBValue(itemOrKeys).EnsureIsMSet().M;
+    Dictionary<string, AttributeValue>? SerializeKey<T>(PrimaryKey<T> key) where T : class  =>
+        key == default ? null : serializer.SerializeDynamoDBValue(key).M;
+
+    Dictionary<string, AttributeValue> SerializeItem<T>(T item) where T : class =>
+        serializer.SerializeDynamoDBValue(item).M;
 
     T Deserialize<T>(Dictionary<string, AttributeValue> attributes) =>
         serializer.DeserializeDynamoDBValue<T>(new AttributeValue { M = attributes, IsMSet = true })!;
